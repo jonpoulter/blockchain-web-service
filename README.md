@@ -41,7 +41,7 @@ Retrieve block details at block height
 **Method**: `GET`  
 **Data**:  N/A
 
-###Success Response
+### Success Response
 
 **Condition**: If Block associated with the key specified by `height` path parameter exists  
 **Code**: `200 OK`  
@@ -57,7 +57,7 @@ Retrieve block details at block height
 }
 ```
 
-###Error Responses
+### Error Responses
 
 **Condition**: If Block associated with the key specified by `height` path parameter doesn't exist 
 **Code**: `404 NOT FOUND`  
@@ -84,7 +84,7 @@ Adds a block to the blockchain.
 	"body": "This is a test message"
 }
 ```
-###Success Response
+### Success Response
 
 **Condition**: If system is online and body property exists  
 **Code**: `201 CREATED`  
@@ -100,7 +100,7 @@ Adds a block to the blockchain.
 }
 ```
 
-###Error Responses
+### Error Responses
 
 **Condition**: If body property doesn't exist in request payload  
 **Code**: `400 BAD REQUEST`  
