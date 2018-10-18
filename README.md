@@ -59,7 +59,7 @@ Retrieve block details at block height
 
 ### Error Responses
 
-**Condition**: If Block associated with the key specified by `height` path parameter doesn't exist 
+**Condition**: If Block associated with the key specified by `height` path parameter doesn't exist   
 **Code**: `404 NOT FOUND`  
 **Content**: N/A
 
