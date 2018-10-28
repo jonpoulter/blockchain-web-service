@@ -42,6 +42,22 @@ app.post('/block', [check('body').isLength({min:1})], (req, res) => {
     } 
 });
 
+//accept a blockchain ID (public wallet address) with a a request for a star registration
+app.post('/requestValidation', [check('address').isLength({min:1})], (req, res) => {
+
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array()});
+    } else {
+        const timestamp = Date.now();
+        const response = {"address": req.body.address, 
+                          "requestTimestamp": timestamp, 
+                          "message": `${req.body.address}:${timestamp}:starRegistry`,
+                          "validationWindow":300}
+        res.status(201).json(response);
+    }
+})
+
 app.listen(port, () => {
     console.log(`web service listening on port ${port}!`)}
 );
