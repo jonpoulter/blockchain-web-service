@@ -2,11 +2,17 @@ const express = require('express');
 const cacheControl = require('express-cache-controller');
 const bodyParser = require('body-parser');
 const {check, validationResult} = require('express-validator/check');
+const bitcoin = require('bitcoinjs-lib');
+const bitcoinMessage = require('bitcoinjs-message');
 const simpleChain = require('./simpleChain');
 const blockchain = new simpleChain.Blockchain('chaindata');
+const mempool = new Map();
+
 
 const app = express();
 const port = 8000;
+//5 minute mempool timewall
+const timeWall = 300000;
 
 //set cache-control to no-cache
 app.use(cacheControl({
@@ -22,6 +28,7 @@ app.disable('etag');
 //uri only matches when height is an integer equal or greater than 0
 app.get('/block/:height(\\d+)', (req, res) => {
     
+    console.log(`/block/${req.params.height}`);
     const height = req.params.height;
     blockchain.getBlock(height)
     .then(block => res.json(JSON.parse(block)))
@@ -30,7 +37,42 @@ app.get('/block/:height(\\d+)', (req, res) => {
     });
 });
 
-app.post('/block', [check('body').isLength({min:1})], (req, res) => {
+app.get('/stars/address/:address', (req, res) => {
+
+    console.log(`/stars/address/${req.params.address}`);
+    const address = req.params.address;
+    let matches = [];
+    blockchain.getBlocks()
+              .then(blocks => {
+                for (let block of blocks) {
+                    block = JSON.parse(block);
+                    console.log(`block address is ${block.body.address}`);
+                    if (block.body.address == address) {
+                        matches.push(block);
+                    }
+                }
+                res.status(200).json(matches);
+              })
+              .catch(e => res.status(500).json({error: e}));
+});
+
+app.get('/stars/hash/:hash', (req, res) => {
+
+    console.log(`/stars/hash/${req.params.hash}`);
+    const hash = req.params.hash;
+    blockchain.getBlocks()
+            .then(blocks => {
+                for (let block of blocks) {
+                    block = JSON.parse(block);
+                    if (block.hash == hash) {
+                        res.status(200).json(block);
+                    }
+                }
+                res.status(200).json({"status":"not found"});
+            })
+});
+
+/*app.post('/block', [check('body').isLength({min:1})], (req, res) => {
     
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -40,23 +82,104 @@ app.post('/block', [check('body').isLength({min:1})], (req, res) => {
                 .then(b => res.status(201).json(JSON.parse(b)))
                 .catch(e => res.status(500).json({error: e}));
     } 
+});*/
+
+app.post('/block', [check('address').isLength({min:1}), check('star').exists(), check('star.dec').exists(), check('star.ra').exists(), check('star.story').isLength({min:2,max:500})], (req,res) => {
+
+    console.log('/block');
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({errors: errors.array()});
+    } else {
+
+        console.log(`submitted story is: ${Buffer.from(req.body.star.story, 'hex')}`);
+
+        blockchain.addBlock(new simpleChain.Block(req.body))
+                .then(b => res.status(201).json(JSON.parse(b)))
+                .catch(e => res.status(500).json({error: e}));
+    }
 });
 
-//accept a blockchain ID (public wallet address) with a a request for a star registration
+//accept a blockchain ID (public wallet address) with a a unconfirmed validation request for a star registration.
+//the response provides a message that the user should sign within configured timewall
 app.post('/requestValidation', [check('address').isLength({min:1})], (req, res) => {
 
+    console.log(`/requestValidation`);
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array()});
-    } else {
-        const timestamp = Date.now();
-        const response = {"address": req.body.address, 
-                          "requestTimestamp": timestamp, 
-                          "message": `${req.body.address}:${timestamp}:starRegistry`,
-                          "validationWindow":300}
-        res.status(201).json(response);
+    } else  {
+
+        var entry = mempool.get(req.body.address);
+        if (entry == undefined) {
+
+            const timestamp = Date.now();
+            console.log(`adding id ${req.body.address} to mempool`);
+            const entry = {  "address": req.body.address, 
+                                "requestTimeStamp": timestamp, 
+                                "message": `${req.body.address}:${timestamp}:starRegistry`,
+                                "validationWindow":timeWall/1000}
+            mempool.set(req.body.address, entry);
+            setTimeout(function() {
+                console.log(`attempting to remove id ${req.body.address} from mempool: ${mempool.delete(req.body.address)}`);
+            }, timeWall);
+           
+            res.status(201).json(entry);
+        } else {
+
+            entry.validationWindow = Math.round((timeWall - (Date.now() - entry.requestTimeStamp))/1000);
+            res.status(200).json(entry);
+        }
+        
+       
     }
 })
+
+app.post('/message-signature/validate', [check('address').isLength({min:1}), check('signature').isLength({min:1})], (req,res) => {
+
+    console.log(`/message-signature/validate`);
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({errors: errors.array()});
+    } else {
+        //retrieve msg from mempool keyed on wallet address
+        const entry = mempool.get(req.body.address);
+        if (entry == undefined) {
+            res.status(400).json({"error":"address not found in mempool"});
+            
+        } else {
+            //decrypt signature and compare message in entry
+            console.log(`msg is ${entry.message}`);
+            const verified = bitcoinMessage.verify(entry.message, req.body.address, req.body.signature);
+
+            if (verified) {
+                const response = {
+                    "registerStar": true,
+                    "status": {
+                        "address": req.body.address,
+                        "requestTimeStamp": entry.requestTimeStamp,
+                        "message": entry.message,
+                        "validationWindow": Math.round((timeWall - (Date.now() - entry.requestTimeStamp))/1000),
+                        "messageSignature": "valid"
+                    }
+                }
+                res.status(200).json(response);
+            } else {
+                const response = {
+                    "registerStar": false,
+                    "status": {
+                        "address": req.body.address,
+                        "requestTimeStamp": entry.requestTimeStamp,
+                        "message": entry.message,
+                        "validationWindow": Math.round((timeWall -(Date.now() - entry.requestTimeStamp))/1000),
+                        "messageSignature": "invalid"
+                    }
+                }
+                res.status(400).json(response);
+            }
+        }
+    }
+}) 
 
 app.listen(port, () => {
     console.log(`web service listening on port ${port}!`)}

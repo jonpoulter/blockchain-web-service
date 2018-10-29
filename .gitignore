@@ -1,4 +1,6 @@
 chaindata
 node_modules
+.DS_Store
+signature.properties
 
 
