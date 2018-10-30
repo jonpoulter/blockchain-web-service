@@ -6,7 +6,10 @@ const bitcoin = require('bitcoinjs-lib');
 const bitcoinMessage = require('bitcoinjs-message');
 const simpleChain = require('./simpleChain');
 const blockchain = new simpleChain.Blockchain('chaindata');
+//temporarily stores identities for configured timeWall period that have requested validation
 const mempool = new Map();
+//stores addresses that have been granted access
+const accessGrants = new Set();
 
 
 const app = express();
@@ -92,11 +95,18 @@ app.post('/block', [check('address').isLength({min:1}), check('star').exists(), 
         return res.status(400).json({errors: errors.array()});
     } else {
 
-        console.log(`submitted story is: ${Buffer.from(req.body.star.story, 'hex')}`);
+        if (accessGrants.has(req.body.address)) {
+            console.log(`submitted story is: ${Buffer.from(req.body.star.story, 'hex')}`);
 
-        blockchain.addBlock(new simpleChain.Block(req.body))
+            accessGrants.delete(req.body.address);
+
+            blockchain.addBlock(new simpleChain.Block(req.body))
                 .then(b => res.status(201).json(JSON.parse(b)))
                 .catch(e => res.status(500).json({error: e}));
+        } else {
+            res.status(401).json({"error": "not granted access to starRegistry"});
+        }
+        
     }
 });
 
@@ -153,6 +163,7 @@ app.post('/message-signature/validate', [check('address').isLength({min:1}), che
             const verified = bitcoinMessage.verify(entry.message, req.body.address, req.body.signature);
 
             if (verified) {
+                accessGrants.add(req.body.address);
                 const response = {
                     "registerStar": true,
                     "status": {
