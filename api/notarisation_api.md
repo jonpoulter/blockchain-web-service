@@ -9,7 +9,7 @@ The Identity of the request is added to mempool awaiting validation within presc
 
 `````
 
-This is an idempotent operation and will return the original response whilst the identity remains in the mempool.
+This is an idempotent operation and will return the original request whilst the identity remains in the mempool.
  
  
  **URL**: `/requestValidation`  
