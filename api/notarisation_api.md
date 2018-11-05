@@ -2,7 +2,7 @@
 
 ## Request Validation
 
-The Identity of the request is added to mempool awaiting validation within prescribed seconds as detailed in `validationWindow`.  Identity of a request is derived as follows:
+The Identity of the request is added to mempool awaiting validation within prescribed seconds threshold defined by `validationWindow` property.  Identity of a request is derived as follows:
 
 `````
 <address>:<timestamp>:starRegistry
