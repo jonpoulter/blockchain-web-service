@@ -94,43 +94,6 @@ Application validates Identity.  Once validated; the user is granted access to r
 
 ### Success Response
 
-
-
-## Add Block
-
-Adds a block to the blockchain.
-
-**URL**: `/block`  
-**URL Parameters**: N/A  
-**Method**: `POST`  
-**Data**:  Provide star and associated address to be added to Block  
-
-```
-{
-	"address": "[unicode 1 char minimum]",
-	"star": {
-		"dec": "[mandatory: degrees arc-minutes arc-seconds e.g -49 21 38.1]",
-		"ra": "[mandatory: hours minutes seconds e.g 13 03 33.35]",
-		"mag": "[optional: magnitude (number)]",
-		"const": "[optional: constallation (string)]",
-		"story": "[mandatory: hex encoded ascii string limited to 250 words/500 bytes]" 
-	}
-}
-```  
-**Data Example**:  
-   
-```
-{
-	"address": "1JPUM1oE3VUDnULtxB4k19jtunduhrABU9",
-	"star" : {
-		"dec": "-26 29 24.9",
-		"ra": "16 29 1.0",
-		"story": "466f756e642073746172207573696e672068747470733a2f2f7777772e676f6f676c652e636f6d2f736b792f0a"
-	}
-}
-```
-### Success Response
-
 **Condition**: If system is online and body property exists  
 **Code**: `200 OK`  
 **Content Example**:  
@@ -182,7 +145,80 @@ Adds a block to the blockchain.
 }
 ```
 
-**Condition**: Application has not validated Identity. 
+**Condition**: address not found in mempool.    
+**Code**: `400 BAD REQUEST`  
+**Content Example**: 
+
+```
+{
+	"error": "address not found in mempool"
+}
+```
+
+
+## Add Block
+
+Adds a block to the blockchain.
+
+**URL**: `/block`  
+**URL Parameters**: N/A  
+**Method**: `POST`  
+**Data**:  Provide star and associated address to be added to Block  
+
+```
+{
+	"address": "[unicode 1 char minimum]",
+	"star": {
+		"dec": "[mandatory: degrees arc-minutes arc-seconds e.g -49 21 38.1]",
+		"ra": "[mandatory: hours minutes seconds e.g 13 03 33.35]",
+		"mag": "[optional: magnitude (number)]",
+		"const": "[optional: constallation (string)]",
+		"story": "[mandatory: hex encoded ascii string limited to 250 words/500 bytes]" 
+	}
+}
+```  
+**Data Example**:  
+   
+```
+{
+	"address": "1JPUM1oE3VUDnULtxB4k19jtunduhrABU9",
+	"star" : {
+		"dec": "-26 29 24.9",
+		"ra": "16 29 1.0",
+		"story": "466f756e642073746172207573696e672068747470733a2f2f7777772e676f6f676c652e636f6d2f736b792f0a"
+	}
+}
+
+```
+
+### Success Response
+
+**Condition**: If signature has been validated  
+**Code**: `200 OK`  
+**Content Example**: 
+
+```
+
+{
+    "hash": "d9d3d9fa530513a7379f898d815d8dc111994c3aa8ad6ef5ee8cf2c152caa78a",
+    "height": 9,
+    "body": {
+        "address": "1JPUM1oE3VUDnULtxB4k19jtunduhrABU9",
+        "star": {
+            "dec": "33, 29' 24.9",
+            "ra": "16 24 1.0",
+            "story": "466f756e642073746172207573696e672068747470733a2f2f7777772e676f6f676c652e636f6d2f736b792f0a"
+        }
+    },
+    "time": "1541524650",
+    "previousBlockHash": "130c3cf1b5b73f3efe8b01c1730446295be6d10af952de0a40a2d1c5b92987c4"
+}
+
+
+```
+
+
+**Condition**: Application has not validated Identity.   
 **Code**: `401 UNAUTHORIZED`  
 **Content Example**: 
 
