@@ -38,3 +38,17 @@ The REST API is comprised of notary related actions as well as search functional
 
 - [Search API](api/search_api.md)
 
+## Managing Identity
+
+The `manageIdentity.js` script can be used to generate a base64 encoded signature of your identity.  In order to successfully run the script, create a `signature.properties` file with the following key/value pairs:
+
+```
+wif=<your private key in wif format>
+walletAddress=<your wallet address>
+message=<the message to encrypt>
+``` 
+Log to standard output the base64 encoded signature by executing the script:
+
+```
+node manageIdentity.js
+```
