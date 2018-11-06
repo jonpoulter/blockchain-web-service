@@ -185,7 +185,8 @@ Adds a block to the blockchain.
 	"star" : {
 		"dec": "-26 29 24.9",
 		"ra": "16 29 1.0",
-		"story": "466f756e642073746172207573696e672068747470733a2f2f7777772e676f6f676c652e636f6d2f736b792f0a"
+		"story": "466f756e642073746172207573696e672068747470733a2f2f7777772e676f6f676c652e636f6d2f736b792f0a",
+		"storyDecoded": "Found star using https://www.google.com/sky/"
 	}
 }
 

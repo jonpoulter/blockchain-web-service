@@ -4,8 +4,8 @@
 
 Retrieve block details at block height
 
-**URL**: `/block/:height`  
-**URL Parameters**: `height=[integer]` where `height` is the block height  
+**URL**: `/block/$height`  
+**URL Parameters**: `$height=[integer]` where `$height` is the block height  
 **Method**: `GET`  
 **Data**:  N/A
 
@@ -42,8 +42,8 @@ Retrieve block details at block height
 
 Retrieve Block Details associated with hash.
 
-**URL**: `/stars/hash/:hash`  
-**URL Parameters**: `hash=[64 character hexidecimal]` where `hash` is the block hash  
+**URL**: `/stars/hash:$hash`  
+**URL Parameters**: `$hash=[64 character hexidecimal]` where `$hash` is the block hash  
 **Method**: `GET`  
 **Data**:  N/A
 
@@ -80,8 +80,8 @@ Retrieve Block Details associated with hash.
 
 Retrieve Blocks associated with wallet address.
 
-**URL**: `/stars/address/:address`  
-**URL Parameters**: `address=[base58 encoded]` where `address` is the wallet address  
+**URL**: `/stars/address:$address`  
+**URL Parameters**: `$address=[base58 encoded]` where `$address` is the wallet address  
 **Method**: `GET`  
 **Data**:  N/A
 

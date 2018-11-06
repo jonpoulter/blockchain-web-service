@@ -40,7 +40,7 @@ app.get('/block/:height(\\d+)', (req, res) => {
     });
 });
 
-app.get('/stars/address/:address', (req, res) => {
+app.get('/stars/address::address', (req, res) => {
 
     console.log(`/stars/address/${req.params.address}`);
     const address = req.params.address;
@@ -59,7 +59,7 @@ app.get('/stars/address/:address', (req, res) => {
               .catch(e => res.status(500).json({error: e}));
 });
 
-app.get('/stars/hash/:hash', (req, res) => {
+app.get('/stars/hash::hash', (req, res) => {
 
     console.log(`/stars/hash/${req.params.hash}`);
     const hash = req.params.hash;
@@ -97,7 +97,7 @@ app.post('/block', [check('address').isLength({min:1}), check('star').exists(), 
 
         if (accessGrants.has(req.body.address)) {
             console.log(`submitted story is: ${Buffer.from(req.body.star.story, 'hex')}`);
-
+            req.body.star.storyDecoded = Buffer.from(req.body.star.story, 'hex').toString();
             accessGrants.delete(req.body.address);
 
             blockchain.addBlock(new simpleChain.Block(req.body))
@@ -164,6 +164,7 @@ app.post('/message-signature/validate', [check('address').isLength({min:1}), che
 
             if (verified) {
                 accessGrants.add(req.body.address);
+                mempool.delete(req.body.address);
                 const response = {
                     "registerStar": true,
                     "status": {
