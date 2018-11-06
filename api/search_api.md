@@ -17,11 +17,18 @@ Retrieve block details at block height
 
 ```
 {
-  "hash": "2421e57373c1c3db7288f9132c273429889b1c7b121db623adb727914868e854",
-  "height": 0,
-  "body": "First block in the chain - Genesis block",
-  "time": "1539879762",
-  "previousBlockHash": ""
+    "hash": "d9d3d9fa530513a7379f898d815d8dc111994c3aa8ad6ef5ee8cf2c152caa78a",
+    "height": 9,
+    "body": {
+        "address": "1JPUM1oE3VUDnULtxB4k19jtunduhrABU9",
+        "star": {
+            "dec": "33, 29' 24.9",
+            "ra": "16 24 1.0",
+            "story": "466f756e642073746172207573696e672068747470733a2f2f7777772e676f6f676c652e636f6d2f736b792f0a"
+        }
+    },
+    "time": "1541524650",
+    "previousBlockHash": "130c3cf1b5b73f3efe8b01c1730446295be6d10af952de0a40a2d1c5b92987c4"
 }
 ```
 
