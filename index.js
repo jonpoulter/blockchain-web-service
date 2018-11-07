@@ -75,19 +75,7 @@ app.get('/stars/hash::hash', (req, res) => {
             })
 });
 
-/*app.post('/block', [check('body').isLength({min:1})], (req, res) => {
-    
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array()});
-    } else { 
-        blockchain.addBlock(new simpleChain.Block(req.body.body))
-                .then(b => res.status(201).json(JSON.parse(b)))
-                .catch(e => res.status(500).json({error: e}));
-    } 
-});*/
-
-app.post('/block', [check('address').isLength({min:1}), check('star').exists(), check('star.dec').exists(), check('star.ra').exists(), check('star.story').isLength({min:2,max:500})], (req,res) => {
+app.post('/block', [check('address').isLength({min:1}), check('star').exists(), check('star.dec').exists(), check('star.ra').exists(), check('star.story').isLength({min:1,max:250})], (req,res) => {
 
     console.log('/block');
     const errors = validationResult(req);
@@ -96,8 +84,9 @@ app.post('/block', [check('address').isLength({min:1}), check('star').exists(), 
     } else {
 
         if (accessGrants.has(req.body.address)) {
-            console.log(`submitted story is: ${Buffer.from(req.body.star.story, 'hex')}`);
-            req.body.star.storyDecoded = Buffer.from(req.body.star.story, 'hex').toString();
+            console.log(`submitted story is: ${Buffer.from(req.body.star.story, 'ascii')}`);
+            req.body.star.storyDecoded = Buffer.from(req.body.star.story, 'ascii').toString();
+            req.body.star.story = toHex(req.body.star.story);
             accessGrants.delete(req.body.address);
 
             blockchain.addBlock(new simpleChain.Block(req.body))
@@ -107,6 +96,15 @@ app.post('/block', [check('address').isLength({min:1}), check('star').exists(), 
             res.status(401).json({"error": "not granted access to starRegistry"});
         }
         
+    }
+
+    function toHex(msg) {
+        var hex = "";
+        for (let i=0;i<msg.length;i++) {
+            hex += ''+msg.charCodeAt(i).toString(16);
+        }
+
+        return hex;
     }
 });
 

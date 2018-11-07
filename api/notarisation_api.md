@@ -173,7 +173,7 @@ Adds a block to the blockchain.
 		"ra": "[mandatory: hours minutes seconds e.g 13 03 33.35]",
 		"mag": "[optional: magnitude (number)]",
 		"const": "[optional: constallation (string)]",
-		"story": "[mandatory: hex encoded ascii string limited to 250 words/500 bytes]" 
+		"story": "[mandatory: ascii string limited to 250 characters]" 
 	}
 }
 ```  
@@ -182,11 +182,10 @@ Adds a block to the blockchain.
 ```
 {
 	"address": "1JPUM1oE3VUDnULtxB4k19jtunduhrABU9",
-	"star" : {
-		"dec": "-26 29 24.9",
-		"ra": "16 29 1.0",
-		"story": "466f756e642073746172207573696e672068747470733a2f2f7777772e676f6f676c652e636f6d2f736b792f0a",
-		"storyDecoded": "Found star using https://www.google.com/sky/"
+	"star": {
+		"dec": "33, 29' 24.9",
+		"ra": "16 24 1.0",
+		"story": "Found star using https://www.google.com/sky/"
 	}
 }
 
@@ -201,18 +200,19 @@ Adds a block to the blockchain.
 ```
 
 {
-    "hash": "d9d3d9fa530513a7379f898d815d8dc111994c3aa8ad6ef5ee8cf2c152caa78a",
-    "height": 9,
+    "hash": "f6a0c3eb76f21d049d6ba1a74dc03b85106481f7d3c4e21e6ecfc456229f2933",
+    "height": 2,
     "body": {
         "address": "1JPUM1oE3VUDnULtxB4k19jtunduhrABU9",
         "star": {
             "dec": "33, 29' 24.9",
             "ra": "16 24 1.0",
-            "story": "466f756e642073746172207573696e672068747470733a2f2f7777772e676f6f676c652e636f6d2f736b792f0a"
+            "story": "466f756e642073746172207573696e672068747470733a2f2f7777772e676f6f676c652e636f6d2f736b792f",
+            "storyDecoded": "Found star using https://www.google.com/sky/"
         }
     },
-    "time": "1541524650",
-    "previousBlockHash": "130c3cf1b5b73f3efe8b01c1730446295be6d10af952de0a40a2d1c5b92987c4"
+    "time": "1541606531",
+    "previousBlockHash": "e72f95ebe0ee7b05e553ef8919d0c4d60b65c8816ae62bea5b1208a23585e2d7"
 }
 
 
@@ -226,6 +226,24 @@ Adds a block to the blockchain.
 ```
 {
     "error": "not granted access to starRegistry"
+}
+
+```
+
+**Condition**: dec, ra or story missing or story length not in permitted range.  
+**Code**: `400 BAD REQUEST`  
+**Content Example**: 
+
+```
+{
+    "errors": [
+        {
+            "location": "body",
+            "param": "star.story",
+            "value": "",
+            "msg": "Invalid value"
+        }
+    ]
 }
 
 ```
